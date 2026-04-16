@@ -8,12 +8,10 @@
         :root { --primary: #0078d4; --bg: #f3f2f1; --card-bg: #ffffff; --text: #333333; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 0; }
         
-        /* 頂部導覽與進度條 */
         .header { background: var(--primary); color: white; padding: 15px 20px; text-align: center; font-size: 20px; font-weight: bold; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .progress-container { background: #e1dfdd; height: 8px; width: 100%; }
         .progress-bar { background: #ffb900; height: 100%; width: 0%; transition: 0.3s; }
 
-        /* 主體卡片設計 */
         .container { max-width: 800px; margin: 20px auto; background: var(--card-bg); padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); min-height: 60vh; }
         .step { display: none; animation: fadeIn 0.4s; }
         .step.active { display: block; }
@@ -23,13 +21,11 @@
         .question { margin-bottom: 25px; }
         .question-title { font-size: 18px; font-weight: bold; margin-bottom: 12px; }
 
-        /* 輸入框與大按鈕選項設計 */
-        input[type="text"], textarea { width: 100%; padding: 12px; font-size: 16px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-family: inherit; margin-top: 8px; }
-        input[type="text"]:focus, textarea:focus { border-color: var(--primary); outline: none; }
+        input[type="text"], input[type="number"], textarea { width: 100%; padding: 12px; font-size: 16px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-family: inherit; margin-top: 8px; }
+        input[type="text"]:focus, input[type="number"]:focus, textarea:focus { border-color: var(--primary); outline: none; }
         textarea { resize: vertical; height: 100px; }
         
         .option-group { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
-        /* 科系選單可容納較多字，稍微縮小最小寬度 */
         .option-group.dept-group { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
         
         .option-label { display: block; padding: 15px; border: 2px solid #e1dfdd; border-radius: 8px; text-align: center; cursor: pointer; font-size: 16px; transition: 0.2s; background: #faf9f8; font-weight: 500; }
@@ -37,7 +33,6 @@
         input[type="radio"], input[type="checkbox"] { display: none; }
         input[type="radio"]:checked + .option-label, input[type="checkbox"]:checked + .option-label { border-color: var(--primary); background: #e1f0ff; color: var(--primary); }
 
-        /* 疼痛拉桿 */
         .slider-container { margin: 20px 0; padding: 0 10px; }
         input[type="range"] { width: 100%; height: 8px; border-radius: 4px; outline: none; }
         .slider-labels { display: flex; justify-content: space-between; margin-top: 10px; font-weight: bold; color: #666; }
@@ -45,7 +40,6 @@
 
         .sub-question { display: none; margin-top: 15px; padding: 15px; background: #fff8f0; border-left: 4px solid #ffb900; border-radius: 0 8px 8px 0; }
 
-        /* 底部按鈕區 */
         .footer-buttons { display: flex; justify-content: space-between; margin-top: 30px; border-top: 1px solid #edebe9; padding-top: 20px; }
         button { padding: 12px 24px; font-size: 16px; font-weight: bold; border-radius: 8px; border: none; cursor: pointer; transition: 0.2s; }
         .btn-prev { background: #edebe9; color: #333; }
@@ -55,7 +49,6 @@
         .btn-submit { background: #107c10; color: white; flex: 1; margin-left: 15px; }
         .btn-submit:hover { background: #0b5a0b; }
 
-        /* 彙總清單畫面設計 */
         .summary-box { background: #f8f9fa; border: 1px solid #e1dfdd; border-radius: 8px; padding: 20px; text-align: left; margin-top: 20px; max-height: 50vh; overflow-y: auto; }
         .summary-item { margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px dashed #ccc; }
         .summary-item:last-child { border-bottom: none; }
@@ -64,7 +57,9 @@
 
         @media (max-width: 600px) {
             .option-group { grid-template-columns: 1fr; }
+            .grid-2col { grid-template-columns: 1fr; }
         }
+        .grid-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
     </style>
 </head>
 <body>
@@ -76,7 +71,22 @@
         <form id="questionnaireForm">
             
             <div class="step active" id="step0">
-                <h3>第一步：請確認您的基本資料與看診科別</h3>
+                <h3>第一步：請確認您的就診資訊與基本資料</h3>
+                
+                <div style="background: #fff3cd; padding: 15px; border-radius: 8px; border: 1px solid #ffeeba; margin-bottom: 20px;">
+                    <div class="question-title" style="color: #856404;">📍 就診定位資訊</div>
+                    <div class="grid-2col">
+                        <div>
+                            <div style="font-size: 14px; font-weight: bold; margin-bottom: 5px;">診間房號：</div>
+                            <input type="text" id="clinicRoom" placeholder="例如：201診" required>
+                        </div>
+                        <div>
+                            <div style="font-size: 14px; font-weight: bold; margin-bottom: 5px;">看診號碼：</div>
+                            <input type="number" id="consultNumber" placeholder="例如：15" required>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="question">
                     <div class="question-title">病患姓名：</div>
                     <input type="text" id="pName" placeholder="請輸入姓名" required>
@@ -98,13 +108,11 @@
                     <div class="question-title" style="color: #005a9e;">🏥 您目前欲看診的科別是？</div>
                     <div style="font-size: 14px; color: #666; margin-bottom: 10px;">請先選擇主科別，再選擇詳細科別</div>
                     
-                    <div class="option-group dept-group" id="mainDeptGroup">
-                        </div>
+                    <div class="option-group dept-group" id="mainDeptGroup"></div>
 
                     <div id="subDeptContainer" style="display: none; margin-top: 15px; padding-top: 15px; border-top: 1px dashed #b3d4fc;">
                         <div class="question-title" style="font-size: 16px;">請選擇詳細科別：</div>
-                        <div class="option-group dept-group" id="subDeptGroup">
-                            </div>
+                        <div class="option-group dept-group" id="subDeptGroup"></div>
                     </div>
                 </div>
             </div>
@@ -307,14 +315,13 @@
 
     <div id="summaryScreen" class="container" style="display:none;">
         <h2 style="color: var(--primary); text-align: center;">📄 資料填寫彙總確認</h2>
-        <p style="text-align: center; color: #666;">請確認以下資料，確認無誤後點擊送出，即可方便日後資料轉出。</p>
+        <p style="text-align: center; color: #666;">請確認以下資料，確認無誤後點擊送出，您的資料將加密傳送至診間。</p>
         
         <div class="summary-box" id="summaryContent">
             </div>
 
         <div class="footer-buttons">
             <button class="btn-prev" onclick="backToForm()">⬅ 返回修改</button>
-            <button class="btn-primary" style="background: #0078d4; color: white; padding: 12px 24px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; margin-left: 10px;" onclick="copySummaryData()">📋 一鍵複製資料</button>
             <button class="btn-submit" onclick="finalSubmit()">✅ 確認送出至系統</button>
         </div>
     </div>
@@ -322,7 +329,7 @@
     <div id="successScreen" style="display:none; text-align: center; margin-top: 50px; background: white; padding: 40px; border-radius: 12px; max-width: 600px; margin: 40px auto; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
         <h1 style="color: #107c10; font-size: 60px; margin-bottom: 10px;">✅</h1>
         <h2>問卷已成功送出！</h2>
-        <p style="color: #666; font-size: 16px;">您的健康資料已經同步至診間系統，<br>請安心於候診區等待叫號。</p>
+        <p style="color: #666; font-size: 16px;">您的健康資料已經安全傳送至診間，<br>請安心於候診區等待叫號。</p>
         <button onclick="location.reload()" style="background: var(--primary); color: white; padding: 12px 24px; font-size: 16px; border:none; border-radius: 8px; margin-top: 20px; font-weight: bold; cursor: pointer;">返回首頁</button>
     </div>
 
@@ -330,9 +337,7 @@
         let currentStep = 0;
         const totalSteps = 6; 
 
-        // ==========================================
-        // 科系資料庫 (根據截圖建立)
-        // ==========================================
+        // 科系資料庫
         const hospitalDepartments = {
             "內科": ["一般內科", "感染科", "心臟內科", "胸腔內科", "肝膽腸胃科", "腎臟內科", "血液暨腫瘤內科", "內分泌新陳代謝科", "神經內科"],
             "外科": ["一般外科", "小兒外科", "神經外科", "骨科", "泌尿科"],
@@ -343,13 +348,11 @@
             "中醫部": ["中醫科"]
         };
 
-        // 初始化科系選單
         function initDepartments() {
             const mainGroup = document.getElementById('mainDeptGroup');
             for (const category in hospitalDepartments) {
                 const label = document.createElement('label');
                 label.innerHTML = `<input type="radio" name="mainDept" value="${category}"><span class="option-label">${category}</span>`;
-                // 綁定點擊事件以顯示次專科
                 label.querySelector('input').addEventListener('change', function() {
                     showSubDepartments(this.value);
                 });
@@ -357,32 +360,20 @@
             }
         }
 
-        // 動態生成次專科選單
         function showSubDepartments(category) {
             const subContainer = document.getElementById('subDeptContainer');
             const subGroup = document.getElementById('subDeptGroup');
-            
-            // 清空舊的次專科
             subGroup.innerHTML = '';
-            
-            // 生成新的次專科按鈕
-            const subDepts = hospitalDepartments[category];
-            subDepts.forEach(sub => {
+            hospitalDepartments[category].forEach(sub => {
                 const label = document.createElement('label');
                 label.innerHTML = `<input type="radio" name="subDept" value="${sub}"><span class="option-label">${sub}</span>`;
                 subGroup.appendChild(label);
             });
-            
-            // 顯示次專科區塊
             subContainer.style.display = 'block';
         }
 
-        // 頁面載入時執行初始化
         window.addEventListener('DOMContentLoaded', initDepartments);
 
-        // ==========================================
-        // 核心功能：身分證字號驗證邏輯 (台灣標準)
-        // ==========================================
         function isValidTaiwanID(id) {
             if (!/^[A-Z][1289]\d{8}$/.test(id)) return false;
             const letterMapping = { A: 10, B: 11, C: 12, D: 13, E: 14, F: 15, G: 16, H: 17, I: 34, J: 18, K: 19, L: 20, M: 21, N: 22, O: 35, P: 23, Q: 24, R: 25, S: 26, T: 27, U: 28, V: 29, W: 32, X: 30, Y: 31, Z: 33 };
@@ -416,17 +407,18 @@
             painDisplay.innerText = this.value + " " + desc;
         });
 
-        // 頁面切換與檢核邏輯
         function validateStep() {
             if(currentStep === 0) {
+                const room = document.getElementById('clinicRoom').value.trim();
+                const num = document.getElementById('consultNumber').value.trim();
                 const name = document.getElementById('pName').value.trim();
                 const id = document.getElementById('pId').value.trim();
                 const gender = document.querySelector('input[name="gender"]:checked');
                 const mainDept = document.querySelector('input[name="mainDept"]:checked');
                 const subDept = document.querySelector('input[name="subDept"]:checked');
                 
-                if(!name || !id || !gender) {
-                    alert("請完整填寫姓名、身分證與性別！");
+                if(!room || !num || !name || !id || !gender || !mainDept || !subDept) {
+                    alert("請完整填寫診號、姓名、身分證、性別與看診科別！");
                     return false;
                 }
 
@@ -446,12 +438,6 @@
                 }
                 if (gender.value === '女' && id[1] !== '2' && id[1] !== '9') {
                     alert("身分證字號與所選性別(女)不相符，請確認！");
-                    return false;
-                }
-
-                // 檢核科別是否已選
-                if (!mainDept || !subDept) {
-                    alert("請完整選擇您欲看診的「主科別」與「詳細科別」！");
                     return false;
                 }
             }
@@ -518,9 +504,6 @@
             }
         }
 
-        // ==========================================
-        // 核心功能：產生一頁彙總資料 (Summary)
-        // ==========================================
         function getAns(name, type='radio') {
             if(type === 'radio') {
                 const el = document.querySelector(`input[name="${name}"]:checked`);
@@ -538,18 +521,19 @@
         function generateSummary() {
             let html = '';
             
-            // 基本資料與科別
+            const room = document.getElementById('clinicRoom').value.trim();
+            const num = document.getElementById('consultNumber').value.trim();
             const gender = getAns('gender');
             const mainDept = getAns('mainDept');
             const subDept = getAns('subDept');
             
-            html += `<div class="summary-item"><div class="summary-q">【基本資料】</div>
-                     <div class="summary-a">姓名：${document.getElementById('pName').value} | 身分證：${document.getElementById('pId').value} | 性別：${gender}</div></div>`;
+            html += `<div class="summary-item"><div class="summary-q">【基本資料與定位】</div>
+                     <div class="summary-a">診間：<b>${room}</b> | 看診號：<b>${num}號</b><br>
+                     姓名：${document.getElementById('pName').value} | 身分證：${document.getElementById('pId').value} | 性別：${gender}</div></div>`;
             
             html += `<div class="summary-item"><div class="summary-q">【欲看診科別】</div>
                      <div class="summary-a" style="color: #d13438; font-weight: bold;">${mainDept} ➔ ${subDept}</div></div>`;
 
-            // 模組一
             const q1 = getAns('q1');
             html += `<div class="summary-item"><div class="summary-q">1. 主要看診原因</div><div class="summary-a">${q1}</div></div>`;
             
@@ -557,15 +541,12 @@
                 html += `<div class="summary-item"><div class="summary-q">2. 發生多久：</div><div class="summary-a">${getAns('q2')}</div></div>`;
                 html += `<div class="summary-item"><div class="summary-q">3. 首次看診：</div><div class="summary-a">${getAns('q3')}</div></div>`;
                 html += `<div class="summary-item"><div class="summary-q">4. 身邊人症狀：</div><div class="summary-a">${getAns('q4')}</div></div>`;
-                
-                // 模組二
                 html += `<div class="summary-item"><div class="summary-q">5. 不舒服位置：</div><div class="summary-a">${getAns('q5', 'checkbox')}</div></div>`;
                 html += `<div class="summary-item"><div class="summary-q">6. 感覺像什麼：</div><div class="summary-a">${getAns('q6', 'checkbox')}</div></div>`;
                 html += `<div class="summary-item"><div class="summary-q">7. 痛苦程度：</div><div class="summary-a">${document.getElementById('painSlider').value} 分</div></div>`;
                 html += `<div class="summary-item"><div class="summary-q">10. 伴隨狀況：</div><div class="summary-a">${getAns('q10', 'checkbox')}</div></div>`;
             }
 
-            // 模組三 & 四
             html += `<div class="summary-item"><div class="summary-q">13. 慢性病史：</div><div class="summary-a">${getAns('q13', 'checkbox')}</div></div>`;
             
             let allergy = getAns('q15');
@@ -581,7 +562,6 @@
             html += `<div class="summary-item"><div class="summary-q">21. 喝酒習慣：</div><div class="summary-a">${getAns('q21')}</div></div>`;
             html += `<div class="summary-item"><div class="summary-q">24. 工作性質：</div><div class="summary-a">${getAns('q24')}</div></div>`;
 
-            // 模組五
             if(gender === '女') {
                 html += `<div class="summary-item"><div class="summary-q">25. 懷孕/哺乳狀態：</div><div class="summary-a">${getAns('q25')}</div></div>`;
             }
@@ -590,7 +570,6 @@
 
             document.getElementById('summaryContent').innerHTML = html;
 
-            // 切換畫面
             document.getElementById('mainContainer').style.display = 'none';
             document.getElementById('progressContainer').style.display = 'none';
             document.getElementById('summaryScreen').style.display = 'block';
@@ -603,32 +582,18 @@
             document.getElementById('progressContainer').style.display = 'block';
         }
 
-        function copySummaryData() {
-            const summaryText = document.getElementById('summaryContent').innerText;
-            navigator.clipboard.writeText(summaryText).then(() => {
-                alert("✅ 資料已成功複製！您可以直接貼上至 HIS 系統的文字區塊中。");
-            }).catch(err => {
-                alert("複製失敗，請手動反白複製。");
-            });
-        }
-
-// ==========================================
-        // 🚀 真實連線版：送出資料至內網中介資料庫
         // ==========================================
-// ==========================================
-        // 🚀 真實連線版：將病患資料寫入 Cloudflare KV
+        // 🚀 真實連線版：將所有病患資料寫入 Cloudflare KV
         // ==========================================
         async function finalSubmit() {
             const submitBtn = document.querySelector('.btn-submit');
             submitBtn.disabled = true;
             submitBtn.innerText = "⏳ 資料加密上傳中...";
 
-            // 1. 組合專屬 Key (例如：201-15)
             const room = document.getElementById('clinicRoom').value.trim();
             const num = document.getElementById('consultNumber').value.trim();
             const patientKey = `${room}-${num}`; 
 
-            // 2. 打包病患原始資料 (這時還是明文，因為要傳給您自己的專屬雲端)
             const payload = {
                 room: room,
                 num: num,
@@ -637,14 +602,38 @@
                 gender: getAns('gender'),
                 mainDept: getAns('mainDept'),
                 subDept: getAns('subDept'),
+                
+                // 模組一
                 q1: getAns('q1'),
                 q2: getAns('q2'),
-                // 如果有其他題目，可以在這裡繼續加上去，例如：
-                // q5: getAns('q5', 'checkbox'),
+                q3: getAns('q3'),
+                q4: getAns('q4'),
+                
+                // 模組二
+                q5: getAns('q5', 'checkbox'),
+                q6: getAns('q6', 'checkbox'),
+                q7: document.getElementById('painSlider').value,
+                q10: getAns('q10', 'checkbox'),
+                
+                // 模組三
+                q13: getAns('q13', 'checkbox'),
+                q15: getAns('q15') === '有' ? `有(${getAns('q15_detail', 'text')})` : '沒有',
+                q17: getAns('q17') === '有' ? `有(${getAns('q17_detail', 'text')})` : '沒有',
+                q18: getAns('q18'),
+                
+                // 模組四
+                q20: getAns('q20'),
+                q21: getAns('q21'),
+                q24: getAns('q24'),
+                
+                // 模組五
+                q25: getAns('gender') === '女' ? getAns('q25') : '不適用',
+                q26: getAns('q26', 'checkbox'),
+                q28: getAns('q28', 'text'),
+                
                 timestamp: new Date().toLocaleString()
             };
 
-            // 3. 呼叫您的 Cloudflare Worker API
             const WORKER_URL = `https://clinicalanalyticsengine.ai-tch-org-tw.workers.dev/?key=${patientKey}`;
 
             try {
@@ -656,7 +645,6 @@
 
                 if (!response.ok) throw new Error('伺服器無回應或發生錯誤');
                 
-                // 4. 傳送成功，切換到完成畫面
                 document.getElementById('mainHeader').style.display = 'none';
                 document.getElementById('summaryScreen').style.display = 'none';
                 document.getElementById('successScreen').style.display = 'block';
@@ -669,7 +657,6 @@
             }
         }
 
-        // 初始化
         updateUI();
     </script>
 </body>
