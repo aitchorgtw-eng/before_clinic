@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>診前健康評估問卷</title>
@@ -40,7 +41,7 @@
 
         .sub-question { display: none; margin-top: 15px; padding: 15px; background: #fff8f0; border-left: 4px solid #ffb900; border-radius: 0 8px 8px 0; }
 
-        .footer-buttons { display: flex; justify-content: space-between; margin-top: 30px; border-top: 1px solid #edebe9; padding-top: 20px; }
+        .footer-buttons { display: flex; justify-content: space-between; margin-top: 20px; border-top: 1px solid #edebe9; padding-top: 20px; }
         button { padding: 12px 24px; font-size: 16px; font-weight: bold; border-radius: 8px; border: none; cursor: pointer; transition: 0.2s; }
         .btn-prev { background: #edebe9; color: #333; }
         .btn-prev:hover { background: #d2d0ce; }
@@ -49,7 +50,7 @@
         .btn-submit { background: #107c10; color: white; flex: 1; margin-left: 15px; }
         .btn-submit:hover { background: #0b5a0b; }
 
-        .summary-box { background: #f8f9fa; border: 1px solid #e1dfdd; border-radius: 8px; padding: 20px; text-align: left; margin-top: 20px; max-height: 50vh; overflow-y: auto; }
+        .summary-box { background: #f8f9fa; border: 1px solid #e1dfdd; border-radius: 8px; padding: 20px; text-align: left; margin-top: 20px; max-height: 40vh; overflow-y: auto; }
         .summary-item { margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px dashed #ccc; }
         .summary-item:last-child { border-bottom: none; }
         .summary-q { font-weight: bold; color: #005a9e; font-size: 15px; margin-bottom: 4px; }
@@ -315,14 +316,17 @@
 
     <div id="summaryScreen" class="container" style="display:none;">
         <h2 style="color: var(--primary); text-align: center;">📄 資料填寫彙總確認</h2>
-        <p style="text-align: center; color: #666;">請確認以下資料，確認無誤後點擊送出，您的資料將加密傳送至診間。</p>
+        <p style="text-align: center; color: #666;">請確認以下資料，為保障您的資安，請完成下方勾選後點擊送出。</p>
         
-        <div class="summary-box" id="summaryContent">
-            </div>
+        <div class="summary-box" id="summaryContent"></div>
+
+        <div style="margin-top: 25px; margin-bottom: 15px; display: flex; justify-content: center;">
+            <div class="cf-turnstile" data-sitekey="0x4AAAAAAC-Qd34i14xZhxjO"></div> 
+        </div>
 
         <div class="footer-buttons">
             <button class="btn-prev" onclick="backToForm()">⬅ 返回修改</button>
-            <button class="btn-submit" onclick="finalSubmit()">✅ 確認送出至系統</button>
+            <button class="btn-submit" onclick="finalSubmit()">✅ 驗證並送出至系統</button>
         </div>
     </div>
 
@@ -583,18 +587,27 @@
         }
 
         // ==========================================
-        // 🚀 真實連線版：將所有病患資料寫入 Cloudflare KV
+        // 🚀 真實連線版：包含 Turnstile 驗證的送出邏輯
         // ==========================================
         async function finalSubmit() {
+            // 🛡️ 1. 抓取 Turnstile 產生的驗證碼 (隱藏欄位)
+            const turnstileResponse = document.querySelector('[name="cf-turnstile-response"]')?.value;
+            
+            if (!turnstileResponse) {
+                alert("⚠️ 請先完成上方的「安全驗證」，以確認您不是機器人程式。");
+                return;
+            }
+
             const submitBtn = document.querySelector('.btn-submit');
             submitBtn.disabled = true;
-            submitBtn.innerText = "⏳ 資料加密上傳中...";
+            submitBtn.innerText = "⏳ 資料加密驗證與上傳中...";
 
             const room = document.getElementById('clinicRoom').value.trim();
             const num = document.getElementById('consultNumber').value.trim();
             const patientKey = `${room}-${num}`; 
 
             const payload = {
+                cf_turnstile_response: turnstileResponse, // 🌟 將驗證碼包進 payload 準備傳給 Worker
                 room: room,
                 num: num,
                 name: document.getElementById('pName').value.trim(),
@@ -643,7 +656,10 @@
                     body: JSON.stringify(payload)
                 });
 
-                if (!response.ok) throw new Error('伺服器無回應或發生錯誤');
+                if (!response.ok) {
+                    const errData = await response.json();
+                    throw new Error(errData.error || '伺服器無回應或發生錯誤');
+                }
                 
                 document.getElementById('mainHeader').style.display = 'none';
                 document.getElementById('summaryScreen').style.display = 'none';
@@ -651,9 +667,14 @@
                 window.scrollTo(0,0);
 
             } catch (error) {
-                alert("❌ 資料傳送失敗，請檢查網路連線。\n詳細錯誤：" + error.message);
+                alert("❌ 資料傳送或驗證失敗。\n詳細錯誤：" + error.message);
                 submitBtn.disabled = false;
-                submitBtn.innerText = "✅ 確認送出至系統";
+                submitBtn.innerText = "✅ 重新驗證並送出";
+                
+                // 發生錯誤時重置 Turnstile 以便重新驗證
+                if (typeof turnstile !== 'undefined') {
+                    turnstile.reset();
+                }
             }
         }
 
