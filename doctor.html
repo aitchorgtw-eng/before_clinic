@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>👨‍⚕️ 門診 AI 診前資料調閱系統</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 700px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        h2 { color: #005a9e; border-bottom: 2px solid #cce3f5; padding-bottom: 10px; margin-top: 0; text-align: center; }
+        .search-box { display: flex; gap: 10px; margin-bottom: 20px; background: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #e1dfdd; }
+        .input-group { flex: 1; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px; }
+        input[type="text"], input[type="number"] { width: 100%; padding: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+        button { padding: 10px 20px; font-size: 16px; font-weight: bold; border-radius: 6px; border: none; cursor: pointer; transition: 0.2s; }
+        .btn-fetch { background: #0078d4; color: white; margin-top: 24px; height: 42px; }
+        .btn-fetch:hover { background: #005a9e; }
+        .btn-copy { background: #107c10; color: white; width: 100%; margin-top: 15px; padding: 12px; display: none; }
+        .btn-copy:hover { background: #0b5a0b; }
+        
+        #resultArea { display: none; background: #fff; border: 1px solid #cce3f5; border-radius: 8px; padding: 20px; margin-top: 20px; line-height: 1.6; }
+        .status-msg { text-align: center; margin-top: 15px; font-weight: bold; color: #d13438; }
+        .masked-badge { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; padding: 2px 6px; border-radius: 4px; font-size: 12px; margin-left: 8px; vertical-align: middle; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>👨‍⚕️ 門診 AI 診前資料調閱系統</h2>
+        
+        <div class="search-box">
+            <div class="input-group">
+                <label>📍 診間房號</label>
+                <input type="text" id="roomInput" placeholder="例: 201">
+            </div>
+            <div class="input-group">
+                <label>🎟️ 看診號碼</label>
+                <input type="number" id="numInput" placeholder="例: 15">
+            </div>
+            <button class="btn-fetch" onclick="fetchPatientData()">🔍 調閱資料</button>
+        </div>
+
+        <div id="statusMessage" class="status-msg"></div>
+
+        <div id="resultArea">
+            <h3 style="margin-top: 0; color: #333;">📋 診前問卷彙總 <span class="masked-badge">🔒 個資已去識別化</span></h3>
+            <div id="textContent" style="white-space: pre-wrap; font-size: 15px; color: #444; background: #faf9f8; padding: 15px; border-radius: 6px; border: 1px dashed #ccc;"></div>
+            <button id="copyBtn" class="btn-copy" onclick="copyData()">📋 一鍵複製至 HIS 或 AI 系統</button>
+        </div>
+    </div>
+
+    <script>
+        // 去識別化邏輯：保留首字，其餘變 O
+        function maskName(name) {
+            if (!name) return "無";
+            if (name.length <= 1) return name;
+            if (name.length === 2) return name.charAt(0) + 'O';
+            return name.charAt(0) + 'O' + name.substring(2); // 雖然這裡可以只遮中間，但依照您的需求可以全遮或遮中間
+        }
+
+        // 去識別化邏輯：保留前4碼與後3碼
+        function maskID(id) {
+            if (!id || id.length !== 10) return id;
+            return id.substring(0, 4) + 'OOO' + id.substring(7);
+        }
+
+        async function fetchPatientData() {
+            const room = document.getElementById('roomInput').value.trim();
+            const num = document.getElementById('numInput').value.trim();
+            const statusMsg = document.getElementById('statusMessage');
+            const resultArea = document.getElementById('resultArea');
+            const textContent = document.getElementById('textContent');
+            const copyBtn = document.getElementById('copyBtn');
+
+            if (!room || !num) {
+                statusMsg.innerText = "⚠️ 請輸入診間房號與看診號碼";
+                return;
+            }
+
+            statusMsg.style.color = "#0078d4";
+            statusMsg.innerText = "⏳ 正在從雲端安全通道調閱資料...";
+            resultArea.style.display = "none";
+            copyBtn.style.display = "none";
+
+            const patientKey = `${room}-${num}`;
+            const WORKER_URL = `https://clinicalanalyticsengine.ai-tch-org-tw.workers.dev/?key=${patientKey}`;
+
+            try {
+                const response = await fetch(WORKER_URL);
+                if (response.status === 404) {
+                    throw new Error("找不到資料。病患可能尚未填寫，或資料已超過 2 小時自動銷毀。");
+                }
+                if (!response.ok) throw new Error("伺服器連線異常");
+
+                const rawData = await response.json();
+
+                // 🌟 在這裡進行去識別化 (資料到達醫師瀏覽器後瞬間處理)
+                const safeName = maskName(rawData.name);
+                const safeID = maskID(rawData.id_number);
+
+                // 組裝成漂亮的文字格式
+                let formattedText = `【病患基本資料】\n`;
+                formattedText += `姓名：${safeName} | 身分證：${safeID} | 性別：${rawData.gender || '無'}\n`;
+                formattedText += `欲看診科別：${rawData.mainDept || ''} ${rawData.subDept || ''}\n`;
+                formattedText += `填寫時間：${rawData.timestamp || '無紀錄'}\n\n`;
+                
+                formattedText += `【看診問卷內容】\n`;
+                formattedText += `1. 主要原因：${rawData.q1 || '未填寫'}\n`;
+                if(rawData.q1 === '身體不舒服') {
+                    formattedText += `2. 發生多久：${rawData.q2 || '未填寫'}\n`;
+                }
+                // (如果有 q5, q6 等等，也可以在這裡繼續組裝)
+
+                textContent.innerText = formattedText;
+                
+                statusMsg.innerText = "";
+                resultArea.style.display = "block";
+                copyBtn.style.display = "block";
+
+            } catch (error) {
+                statusMsg.style.color = "#d13438";
+                statusMsg.innerText = "❌ " + error.message;
+            }
+        }
+
+        function copyData() {
+            const text = document.getElementById('textContent').innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                alert("✅ 安全資料已成功複製！\n您可以直接貼上至 HIS 系統或我們之前做的醫師 AI 畫面中。");
+            }).catch(() => {
+                alert("複製失敗，請手動圈選複製。");
+            });
+        }
+    </script>
+</body>
+</html>

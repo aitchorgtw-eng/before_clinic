@@ -615,82 +615,57 @@
 // ==========================================
         // 🚀 真實連線版：送出資料至內網中介資料庫
         // ==========================================
+// ==========================================
+        // 🚀 真實連線版：將病患資料寫入 Cloudflare KV
+        // ==========================================
         async function finalSubmit() {
             const submitBtn = document.querySelector('.btn-submit');
             submitBtn.disabled = true;
-            submitBtn.innerText = "⏳ 資料加密傳送中...";
+            submitBtn.innerText = "⏳ 資料加密上傳中...";
 
-            // 1. 打包病患資料 (JSON 格式)
+            // 1. 組合專屬 Key (例如：201-15)
+            const room = document.getElementById('clinicRoom').value.trim();
+            const num = document.getElementById('consultNumber').value.trim();
+            const patientKey = `${room}-${num}`; 
+
+            // 2. 打包病患原始資料 (這時還是明文，因為要傳給您自己的專屬雲端)
             const payload = {
-                patient_info: {
-                    name: document.getElementById('pName').value.trim(),
-                    id_number: document.getElementById('pId').value.trim(),
-                    gender: getAns('gender')
-                },
-                department: {
-                    main: getAns('mainDept'),
-                    sub: getAns('subDept')
-                },
-                questionnaire: {
-                    q1_reason: getAns('q1'),
-                    q2_duration: getAns('q2'),
-                    q3_first_time: getAns('q3'),
-                    q4_family_symptoms: getAns('q4'),
-                    q5_location: getAns('q5', 'checkbox'),
-                    q6_feeling: getAns('q6', 'checkbox'),
-                    q7_pain_level: document.getElementById('painSlider').value,
-                    q10_accompanying: getAns('q10', 'checkbox'),
-                    q13_chronic: getAns('q13', 'checkbox'),
-                    q15_drug_allergy: getAns('q15') === '有' ? getAns('q15_detail', 'text') : '無',
-                    q17_surgery: getAns('q17') === '有' ? getAns('q17_detail', 'text') : '無',
-                    q18_tocc: getAns('q18'),
-                    q20_smoke: getAns('q20'),
-                    q21_alcohol: getAns('q21'),
-                    q24_job: getAns('q24'),
-                    q25_pregnancy: getAns('gender') === '女' ? getAns('q25') : '不適用',
-                    q26_expectation: getAns('q26', 'checkbox'),
-                    q28_note: getAns('q28', 'text')
-                },
-                submitted_at: new Date().toISOString() // 紀錄填寫時間
+                room: room,
+                num: num,
+                name: document.getElementById('pName').value.trim(),
+                id_number: document.getElementById('pId').value.trim(),
+                gender: getAns('gender'),
+                mainDept: getAns('mainDept'),
+                subDept: getAns('subDept'),
+                q1: getAns('q1'),
+                q2: getAns('q2'),
+                // 如果有其他題目，可以在這裡繼續加上去，例如：
+                // q5: getAns('q5', 'checkbox'),
+                timestamp: new Date().toLocaleString()
             };
 
-            // 2. 準備您的內網 API 接收端點 (後端工程師提供)
-            // ⚠️ 實務上請換成醫院真實的 API 網址，例如: https://192.168.1.100/api/questionnaire
-            const API_ENDPOINT = "https://您的內網伺服器IP/api/submit_questionnaire"; 
+            // 3. 呼叫您的 Cloudflare Worker API
+            const WORKER_URL = `https://clinicalanalyticsengine.ai-tch-org-tw.workers.dev/?key=${patientKey}`;
 
             try {
-                // 3. 發送 POST 請求 (模擬傳輸)
-                /* 👉 正式上線時，請將這段註解解開
-                const response = await fetch(API_ENDPOINT, {
+                const response = await fetch(WORKER_URL, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        // 若有需要，可在此加入平板設備的授權 Token 
-                        // 'Authorization': 'Bearer device-token-123'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
 
-                if (!response.ok) throw new Error('伺服器連線異常');
-                const result = await response.json();
-                */
-
-                // (這裡為了展示，我們用 setTimeout 模擬網路延遲 1 秒)
-                await new Promise(resolve => setTimeout(resolve, 1000));
+                if (!response.ok) throw new Error('伺服器無回應或發生錯誤');
                 
-                // 4. 傳輸成功，切換至成功畫面
+                // 4. 傳送成功，切換到完成畫面
                 document.getElementById('mainHeader').style.display = 'none';
                 document.getElementById('summaryScreen').style.display = 'none';
                 document.getElementById('successScreen').style.display = 'block';
                 window.scrollTo(0,0);
 
-                // 在開發者工具印出打包好的資料，方便後端工程師核對格式
-                console.log("✅ 成功傳送至資料庫的 Payload:", JSON.stringify(payload, null, 2));
-
             } catch (error) {
-                alert("❌ 資料傳送失敗，請檢查網路連線或洽詢櫃台人員。\n錯誤訊息：" + error.message);
+                alert("❌ 資料傳送失敗，請檢查網路連線。\n詳細錯誤：" + error.message);
                 submitBtn.disabled = false;
-                submitBtn.innerText = "✅ 重新確認送出";
+                submitBtn.innerText = "✅ 確認送出至系統";
             }
         }
 
