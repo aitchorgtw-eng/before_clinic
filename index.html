@@ -4,22 +4,22 @@
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pre-Clinic Health Assessment | 診前健康評估問卷</title>
+    <title>Pre-Clinic Assessment | 診前評估 | Pagsusuri</title>
     <style>
         :root { --primary: #0078d4; --bg: #f3f2f1; --card-bg: #ffffff; --text: #333333; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 0; }
         
         .header { background: var(--primary); color: white; padding: 15px 20px; text-align: center; font-size: 20px; font-weight: bold; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .header-sub { font-size: 14px; font-weight: normal; margin-top: 5px; color: #cce3f5; }
+        .header-sub { font-size: 13px; font-weight: normal; margin-top: 5px; color: #cce3f5; }
 
         .container { max-width: 800px; margin: 20px auto; background: var(--card-bg); padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
 
         .section-title { color: var(--primary); border-bottom: 2px solid #edebe9; padding-bottom: 10px; margin-top: 30px; margin-bottom: 20px; font-size: 20px; }
-        .section-title-en { display: block; font-size: 14px; color: #666; margin-top: 5px; }
+        .section-title-sub { display: block; font-size: 13px; color: #666; margin-top: 5px; font-weight: normal; }
 
         .question { margin-bottom: 25px; background: #faf9f8; padding: 15px; border-radius: 8px; border: 1px solid #f3f2f1; }
-        .question-title { font-size: 16px; font-weight: bold; margin-bottom: 12px; }
-        .question-en { display: block; font-size: 14px; color: #555; font-weight: normal; margin-top: 4px; }
+        .question-title { font-size: 16px; font-weight: bold; margin-bottom: 8px; }
+        .question-sub { display: block; font-size: 13px; color: #555; font-weight: normal; margin-top: 4px; }
 
         input[type="text"], input[type="number"], textarea { width: 100%; padding: 12px; font-size: 16px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-family: inherit; margin-top: 8px; }
         input[type="text"]:focus, input[type="number"]:focus, textarea:focus { border-color: var(--primary); outline: none; }
@@ -27,32 +27,32 @@
         
         .option-group { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
         
-        .option-label { display: flex; flex-direction: column; justify-content: center; padding: 12px; border: 2px solid #e1dfdd; border-radius: 8px; text-align: center; cursor: pointer; font-size: 16px; transition: 0.2s; background: #fff; font-weight: bold; min-height: 50px; }
-        .option-en { font-size: 13px; color: #666; font-weight: normal; margin-top: 4px; }
+        .option-label { display: flex; flex-direction: column; justify-content: center; padding: 12px; border: 2px solid #e1dfdd; border-radius: 8px; text-align: center; cursor: pointer; font-size: 16px; transition: 0.2s; background: #fff; font-weight: bold; min-height: 55px; }
+        .option-sub { font-size: 12px; color: #666; font-weight: normal; margin-top: 5px; line-height: 1.3; }
         .option-label:hover { background: #f3f2f1; }
         input[type="radio"], input[type="checkbox"] { display: none; }
         input[type="radio"]:checked + .option-label, input[type="checkbox"]:checked + .option-label { border-color: var(--primary); background: #e1f0ff; color: var(--primary); }
-        input[type="radio"]:checked + .option-label .option-en, input[type="checkbox"]:checked + .option-label .option-en { color: #005a9e; }
+        input[type="radio"]:checked + .option-label .option-sub, input[type="checkbox"]:checked + .option-label .option-sub { color: #005a9e; }
 
         .slider-container { margin: 20px 0; padding: 0 10px; }
         input[type="range"] { width: 100%; height: 8px; border-radius: 4px; outline: none; }
-        .slider-labels { display: flex; justify-content: space-between; margin-top: 10px; font-weight: bold; color: #666; font-size: 14px; }
-        #painValueDisplay { font-size: 24px; color: #d13438; font-weight: bold; text-align: center; display: block; margin-top: 10px; }
+        .slider-labels { display: flex; justify-content: space-between; margin-top: 10px; font-weight: bold; color: #666; font-size: 13px; }
+        #painValueDisplay { font-size: 22px; color: #d13438; font-weight: bold; text-align: center; display: block; margin-top: 10px; }
 
         .sub-question { display: none; margin-top: 15px; padding: 15px; background: #fff8f0; border-left: 4px solid #ffb900; border-radius: 0 8px 8px 0; }
 
         .footer-buttons { display: flex; justify-content: center; margin-top: 40px; border-top: 1px solid #edebe9; padding-top: 30px; }
-        button { padding: 15px 30px; font-size: 18px; font-weight: bold; border-radius: 8px; border: none; cursor: pointer; transition: 0.2s; }
+        button { padding: 15px 30px; font-size: 16px; font-weight: bold; border-radius: 8px; border: none; cursor: pointer; transition: 0.2s; }
         .btn-prev { background: #edebe9; color: #333; margin-right: 15px; }
         .btn-prev:hover { background: #d2d0ce; }
-        .btn-submit { background: #107c10; color: white; width: 100%; max-width: 400px; }
+        .btn-submit { background: #107c10; color: white; width: 100%; max-width: 450px; }
         .btn-submit:hover { background: #0b5a0b; }
 
         .summary-box { background: #f8f9fa; border: 1px solid #e1dfdd; border-radius: 8px; padding: 20px; text-align: left; margin-top: 20px; max-height: 50vh; overflow-y: auto; }
         .summary-item { margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px dashed #ccc; }
         .summary-item:last-child { border-bottom: none; }
-        .summary-q { font-weight: bold; color: #005a9e; font-size: 15px; margin-bottom: 4px; }
-        .summary-a { font-size: 16px; color: #333; }
+        .summary-q { font-weight: bold; color: #005a9e; font-size: 14px; margin-bottom: 4px; }
+        .summary-a { font-size: 15px; color: #333; }
 
         @media (max-width: 600px) {
             .option-group { grid-template-columns: 1fr; }
@@ -65,7 +65,7 @@
 
     <div class="header" id="mainHeader">
         📋 門診看診前健康評估
-        <div class="header-sub">Pre-Clinic Health Assessment</div>
+        <div class="header-sub">Pre-Clinic Health Assessment / Pagsusuri sa Kalusugan</div>
     </div>
 
     <div class="container" id="mainContainer">
@@ -73,168 +73,168 @@
             
             <div class="section-title">
                 基本資料
-                <span class="section-title-en">Basic Information</span>
+                <span class="section-title-sub">Basic Information / Pangunahing Impormasyon</span>
             </div>
                 
             <div style="background: #fff3cd; padding: 15px; border-radius: 8px; border: 1px solid #ffeeba; margin-bottom: 20px;">
-                <div class="question-title" style="color: #856404;">📍 就診定位 / Registration Info</div>
+                <div class="question-title" style="color: #856404;">📍 就診定位 / Registration Info / Rehistrasyon</div>
                 <div class="grid-2col">
                     <div>
-                        <div style="font-size: 14px; font-weight: bold; margin-bottom: 5px;">診間房號 / Room No.：</div>
+                        <div style="font-size: 13px; font-weight: bold; margin-bottom: 5px;">診間房號<br>Room No. / Numero ng Kuwarto：</div>
                         <input type="text" id="clinicRoom" placeholder="Ex: 101" required>
                     </div>
                     <div>
-                        <div style="font-size: 14px; font-weight: bold; margin-bottom: 5px;">看診號碼 / Patient No.：</div>
+                        <div style="font-size: 13px; font-weight: bold; margin-bottom: 5px;">看診號碼<br>Patient No. / Numero ng Pasyente：</div>
                         <input type="number" id="consultNumber" placeholder="Ex: 15" required>
                     </div>
                 </div>
             </div>
 
             <div class="question">
-                <div class="question-title">姓名<span class="question-en">Full Name</span></div>
-                <input type="text" id="pName" placeholder="請輸入姓名 / Enter your name" required>
+                <div class="question-title">姓名<span class="question-sub">Full Name / Buong Pangalan</span></div>
+                <input type="text" id="pName" placeholder="請輸入姓名 / Enter name / Ilagay ang pangalan" required>
             </div>
             
             <div class="question">
-                <div class="question-title">生理性別<span class="question-en">Biological Gender</span></div>
+                <div class="question-title">生理性別<span class="question-sub">Biological Gender / Kasarian</span></div>
                 <div class="option-group">
-                    <label><input type="radio" name="gender" value="男" required><span class="option-label">👨 男性<span class="option-en">Male</span></span></label>
-                    <label><input type="radio" name="gender" value="女"><span class="option-label">👩 女性<span class="option-en">Female</span></span></label>
+                    <label><input type="radio" name="gender" value="男" required><span class="option-label">👨 男性<span class="option-sub">Male / Lalaki</span></span></label>
+                    <label><input type="radio" name="gender" value="女"><span class="option-label">👩 女性<span class="option-sub">Female / Babae</span></span></label>
                 </div>
             </div>
             
             <div class="question" style="background: #f0f8ff; border: 1px solid #cce3f5;">
-                <div class="question-title" style="color: #005a9e;">欲看診科別<span class="question-en">Department to Visit</span></div>
+                <div class="question-title" style="color: #005a9e;">欲看診科別<span class="question-sub">Department to Visit / Departamentong Pupuntahan</span></div>
                 <div class="option-group" id="mainDeptGroup"></div>
                 <div id="subDeptContainer" style="display: none; margin-top: 15px; padding-top: 15px; border-top: 1px dashed #b3d4fc;">
-                    <div class="question-title">詳細科別<span class="question-en">Specific Department</span></div>
+                    <div class="question-title">詳細科別<span class="question-sub">Specific Department / Tiyak na Departamento</span></div>
                     <div class="option-group" id="subDeptGroup"></div>
                 </div>
             </div>
 
             <div class="section-title">
                 主訴與症狀
-                <span class="section-title-en">Chief Complaint & Symptoms</span>
+                <span class="section-title-sub">Chief Complaint & Symptoms / Pangunahing Reklamo at Sintomas</span>
             </div>
 
             <div class="question">
-                <div class="question-title">1. 看診主要原因？<span class="question-en">Main reason for today's visit? (Single choice)</span></div>
+                <div class="question-title">1. 看診主要原因？<span class="question-sub">Main reason for visit? / Pangunahing dahilan ng pagbisita?</span></div>
                 <div class="option-group">
-                    <label><input type="radio" name="q1" value="身體不舒服"><span class="option-label">🤒 身體不舒服<span class="option-en">Feeling unwell</span></span></label>
-                    <label><input type="radio" name="q1" value="慢性病拿藥"><span class="option-label">💊 慢性病拿藥<span class="option-en">Medication refill</span></span></label>
-                    <label><input type="radio" name="q1" value="看檢驗報告"><span class="option-label">📄 看檢驗報告<span class="option-en">Check lab results</span></span></label>
-                    <label><input type="radio" name="q1" value="其他"><span class="option-label">❓ 其他<span class="option-en">Others</span></span></label>
+                    <label><input type="radio" name="q1" value="身體不舒服"><span class="option-label">🤒 身體不舒服<span class="option-sub">Feeling unwell<br>Masama ang pakiramdam</span></span></label>
+                    <label><input type="radio" name="q1" value="慢性病拿藥"><span class="option-label">💊 慢性病拿藥<span class="option-sub">Medication refill<br>Pagkuha ng gamot</span></span></label>
+                    <label><input type="radio" name="q1" value="看檢驗報告"><span class="option-label">📄 看檢驗報告<span class="option-sub">Check lab results<br>Resulta ng lab</span></span></label>
+                    <label><input type="radio" name="q1" value="其他"><span class="option-label">❓ 其他<span class="option-sub">Others<br>Iba pa</span></span></label>
                 </div>
             </div>
 
             <div id="q1-sub" style="display: none; padding-left: 15px; border-left: 4px solid #ffb900; margin-left: 5px; margin-bottom: 25px;">
                 <div class="question">
-                    <div class="question-title">2. 不舒服發生多久了？<span class="question-en">How long have you felt this way?</span></div>
+                    <div class="question-title">2. 不舒服發生多久了？<span class="question-sub">How long have you felt this way? / Gaano katagal na?</span></div>
                     <div class="option-group">
-                        <label><input type="radio" name="q2" value="今天剛發生"><span class="option-label">今天剛發生<span class="option-en">Just today</span></span></label>
-                        <label><input type="radio" name="q2" value="幾天內"><span class="option-label">幾天內<span class="option-en">A few days</span></span></label>
-                        <label><input type="radio" name="q2" value="一到兩週"><span class="option-label">一到兩週<span class="option-en">1-2 weeks</span></span></label>
-                        <label><input type="radio" name="q2" value="幾個月以上"><span class="option-label">幾個月以上<span class="option-en">Months or more</span></span></label>
+                        <label><input type="radio" name="q2" value="今天剛發生"><span class="option-label">今天剛發生<span class="option-sub">Just today / Ngayong araw</span></span></label>
+                        <label><input type="radio" name="q2" value="幾天內"><span class="option-label">幾天內<span class="option-sub">A few days / Ilang araw</span></span></label>
+                        <label><input type="radio" name="q2" value="一到兩週"><span class="option-label">一到兩週<span class="option-sub">1-2 weeks / 1-2 linggo</span></span></label>
+                        <label><input type="radio" name="q2" value="幾個月以上"><span class="option-label">幾個月以上<span class="option-sub">Months+ / Ilang buwan</span></span></label>
                     </div>
                 </div>
 
                 <div class="question">
-                    <div class="question-title">3. 最不舒服的位置？ (可多選)<span class="question-en">Location of discomfort? (Multiple choice)</span></div>
+                    <div class="question-title">3. 最不舒服的位置？ (可多選)<span class="question-sub">Location of discomfort? / Saan ang masakit?</span></div>
                     <div class="option-group">
-                        <label><input type="checkbox" name="q5" value="頭部"><span class="option-label">👤 頭/臉部<span class="option-en">Head/Face</span></span></label>
-                        <label><input type="checkbox" name="q5" value="喉嚨"><span class="option-label">🗣️ 喉嚨/頸部<span class="option-en">Throat/Neck</span></span></label>
-                        <label><input type="checkbox" name="q5" value="胸部"><span class="option-label">🫁 胸部/心臟<span class="option-en">Chest/Heart</span></span></label>
-                        <label><input type="checkbox" name="q5" value="腹部"><span class="option-label">🤰 腹部/腸胃<span class="option-en">Abdomen/Stomach</span></span></label>
-                        <label><input type="checkbox" name="q5" value="四肢"><span class="option-label">💪 手腳四肢<span class="option-en">Limbs</span></span></label>
-                        <label><input type="checkbox" name="q5" value="全身"><span class="option-label">🧍 全身<span class="option-en">Whole body</span></span></label>
+                        <label><input type="checkbox" name="q5" value="頭部"><span class="option-label">👤 頭/臉部<span class="option-sub">Head/Face / Ulo/Mukha</span></span></label>
+                        <label><input type="checkbox" name="q5" value="喉嚨"><span class="option-label">🗣️ 喉嚨/頸部<span class="option-sub">Throat/Neck / Lalamunan</span></span></label>
+                        <label><input type="checkbox" name="q5" value="胸部"><span class="option-label">🫁 胸部/心臟<span class="option-sub">Chest/Heart / Dibdib/Puso</span></span></label>
+                        <label><input type="checkbox" name="q5" value="腹部"><span class="option-label">🤰 腹部/腸胃<span class="option-sub">Abdomen/Stomach / Tiyan</span></span></label>
+                        <label><input type="checkbox" name="q5" value="四肢"><span class="option-label">💪 手腳四肢<span class="option-sub">Limbs / Braso at binti</span></span></label>
+                        <label><input type="checkbox" name="q5" value="全身"><span class="option-label">🧍 全身<span class="option-sub">Whole body / Buong katawan</span></span></label>
                     </div>
                 </div>
 
                 <div class="question">
-                    <div class="question-title">4. 痛苦程度 (0-10分)<span class="question-en">Pain level (0 = No pain, 10 = Severe pain)</span></div>
+                    <div class="question-title">4. 痛苦程度 (0-10分)<span class="question-sub">Pain level / Antas ng sakit (0 = No pain, 10 = Severe)</span></div>
                     <div class="slider-container">
                         <input type="range" id="painSlider" name="q7" min="0" max="10" value="0">
-                        <span id="painValueDisplay">0 分 / Score (無痛/No pain)</span>
+                        <span id="painValueDisplay">0 分 / Score (無痛 / Walang sakit)</span>
                         <div class="slider-labels"><span>0</span><span>5</span><span>10</span></div>
                     </div>
                 </div>
 
                 <div class="question">
-                    <div class="question-title">5. 伴隨狀況？ (可多選)<span class="question-en">Accompanying symptoms? (Multiple choice)</span></div>
+                    <div class="question-title">5. 伴隨狀況？ (可多選)<span class="question-sub">Other symptoms? / Iba pang nararamdaman?</span></div>
                     <div class="option-group">
-                        <label><input type="checkbox" name="q10" value="發燒"><span class="option-label">發燒<span class="option-en">Fever</span></span></label>
-                        <label><input type="checkbox" name="q10" value="咳嗽"><span class="option-label">咳嗽<span class="option-en">Cough</span></span></label>
-                        <label><input type="checkbox" name="q10" value="喘不過氣"><span class="option-label">喘不過氣<span class="option-en">Shortness of breath</span></span></label>
-                        <label><input type="checkbox" name="q10" value="噁心嘔吐"><span class="option-label">噁心嘔吐<span class="option-en">Nausea/Vomiting</span></span></label>
-                        <label><input type="checkbox" name="q10" value="拉肚子"><span class="option-label">拉肚子<span class="option-en">Diarrhea</span></span></label>
-                        <label><input type="checkbox" name="q10" value="頭暈"><span class="option-label">頭暈<span class="option-en">Dizziness</span></span></label>
+                        <label><input type="checkbox" name="q10" value="發燒"><span class="option-label">發燒<span class="option-sub">Fever / Lagnat</span></span></label>
+                        <label><input type="checkbox" name="q10" value="咳嗽"><span class="option-label">咳嗽<span class="option-sub">Cough / Ubo</span></span></label>
+                        <label><input type="checkbox" name="q10" value="喘不過氣"><span class="option-label">喘不過氣<span class="option-sub">Short breath / Hirap huminga</span></span></label>
+                        <label><input type="checkbox" name="q10" value="噁心嘔吐"><span class="option-label">噁心嘔吐<span class="option-sub">Vomiting / Nagsusuka</span></span></label>
+                        <label><input type="checkbox" name="q10" value="拉肚子"><span class="option-label">拉肚子<span class="option-sub">Diarrhea / Nagtatae</span></span></label>
+                        <label><input type="checkbox" name="q10" value="頭暈"><span class="option-label">頭暈<span class="option-sub">Dizziness / Nahihilo</span></span></label>
                     </div>
                 </div>
             </div>
 
             <div class="section-title">
                 過去病史
-                <span class="section-title-en">Past Medical History</span>
+                <span class="section-title-sub">Past Medical History / Kasaysayang Medikal</span>
             </div>
 
             <div class="question">
-                <div class="question-title">6. 慢性疾病史？ (可多選)<span class="question-en">Chronic diseases? (Multiple choice)</span></div>
+                <div class="question-title">6. 慢性疾病史？ (可多選)<span class="question-sub">Chronic diseases? / Malalang sakit?</span></div>
                 <div class="option-group">
-                    <label><input type="checkbox" name="q13" value="高血壓"><span class="option-label">高血壓<span class="option-en">Hypertension</span></span></label>
-                    <label><input type="checkbox" name="q13" value="糖尿病"><span class="option-label">糖尿病<span class="option-en">Diabetes</span></span></label>
-                    <label><input type="checkbox" name="q13" value="心臟病"><span class="option-label">心臟病<span class="option-en">Heart disease</span></span></label>
-                    <label><input type="checkbox" name="q13" value="氣喘"><span class="option-label">氣喘<span class="option-en">Asthma</span></span></label>
-                    <label><input type="checkbox" name="q13" value="都沒有"><span class="option-label">都沒有<span class="option-en">None</span></span></label>
+                    <label><input type="checkbox" name="q13" value="高血壓"><span class="option-label">高血壓<span class="option-sub">Hypertension / High blood</span></span></label>
+                    <label><input type="checkbox" name="q13" value="糖尿病"><span class="option-label">糖尿病<span class="option-sub">Diabetes</span></span></label>
+                    <label><input type="checkbox" name="q13" value="心臟病"><span class="option-label">心臟病<span class="option-sub">Heart disease / Sakit sa puso</span></span></label>
+                    <label><input type="checkbox" name="q13" value="氣喘"><span class="option-label">氣喘<span class="option-sub">Asthma / Hika</span></span></label>
+                    <label><input type="checkbox" name="q13" value="都沒有"><span class="option-label">都沒有<span class="option-sub">None / Wala</span></span></label>
                 </div>
             </div>
 
             <div class="question">
-                <div class="question-title">7. 對「藥物」過敏嗎？<span class="question-en">Any drug allergies?</span></div>
+                <div class="question-title">7. 對「藥物」過敏嗎？<span class="question-sub">Any drug allergies? / Allergy sa gamot?</span></div>
                 <div class="option-group">
-                    <label><input type="radio" name="q15" value="沒有" onchange="toggleSub('q15-sub', false)"><span class="option-label">沒有<span class="option-en">No</span></span></label>
-                    <label><input type="radio" name="q15" value="有" onchange="toggleSub('q15-sub', true)"><span class="option-label">有<span class="option-en">Yes</span></span></label>
+                    <label><input type="radio" name="q15" value="沒有" onchange="toggleSub('q15-sub', false)"><span class="option-label">沒有<span class="option-sub">No / Wala</span></span></label>
+                    <label><input type="radio" name="q15" value="有" onchange="toggleSub('q15-sub', true)"><span class="option-label">有<span class="option-sub">Yes / Meron</span></span></label>
                 </div>
                 <div id="q15-sub" class="sub-question">
-                    請說明對哪種藥物過敏？症狀是？<br><span style="font-size:13px; color:#666;">Please specify drug name and allergic reaction:</span>
-                    <input type="text" name="q15_detail" placeholder="Ex: Penicillin (Rash)">
+                    請說明藥物名稱與症狀？<br><span style="font-size:12px; color:#666;">Drug name & reaction / Pangalan ng gamot at reaksyon:</span>
+                    <input type="text" name="q15_detail" placeholder="Ex: Penicillin (Rash / Rashes)">
                 </div>
             </div>
 
             <div class="question">
-                <div class="question-title">8. 曾經開過刀或住院嗎？<span class="question-en">Previous surgeries or hospitalizations?</span></div>
+                <div class="question-title">8. 曾經開過刀或住院嗎？<span class="question-sub">Previous surgeries? / Naoperahan na ba dati?</span></div>
                 <div class="option-group">
-                    <label><input type="radio" name="q17" value="沒有" onchange="toggleSub('q17-sub', false)"><span class="option-label">沒有<span class="option-en">No</span></span></label>
-                    <label><input type="radio" name="q17" value="有" onchange="toggleSub('q17-sub', true)"><span class="option-label">有<span class="option-en">Yes</span></span></label>
+                    <label><input type="radio" name="q17" value="沒有" onchange="toggleSub('q17-sub', false)"><span class="option-label">沒有<span class="option-sub">No / Wala</span></span></label>
+                    <label><input type="radio" name="q17" value="有" onchange="toggleSub('q17-sub', true)"><span class="option-label">有<span class="option-sub">Yes / Meron</span></span></label>
                 </div>
                 <div id="q17-sub" class="sub-question">
-                    請簡單描述原因與年份：<br><span style="font-size:13px; color:#666;">Please specify reason and year:</span>
-                    <input type="text" name="q17_detail" placeholder="Ex: Appendectomy 2015">
+                    請說明原因與年份：<br><span style="font-size:12px; color:#666;">Reason & year / Dahilan at taon:</span>
+                    <input type="text" name="q17_detail" placeholder="Ex: Appendicitis 2015">
                 </div>
             </div>
 
             <div class="question" id="femaleOnlyQuestion" style="display: none; background: #fff4ce; border-color: #ffeeba;">
-                <div class="question-title" style="color: #d13438;">9. (女性專屬) 是否懷孕或哺乳？<span class="question-en">(Female only) Pregnant or breastfeeding?</span></div>
+                <div class="question-title" style="color: #d13438;">9. 是否懷孕或哺乳？<span class="question-sub">Pregnant or breastfeeding? / Buntis o nagpapasuso?</span></div>
                 <div class="option-group">
-                    <label><input type="radio" name="q25" value="否"><span class="option-label">否<span class="option-en">No</span></span></label>
-                    <label><input type="radio" name="q25" value="懷孕中"><span class="option-label">懷孕中<span class="option-en">Pregnant</span></span></label>
-                    <label><input type="radio" name="q25" value="哺乳中"><span class="option-label">哺乳中<span class="option-en">Breastfeeding</span></span></label>
+                    <label><input type="radio" name="q25" value="否"><span class="option-label">否<span class="option-sub">No / Hindi</span></span></label>
+                    <label><input type="radio" name="q25" value="懷孕中"><span class="option-label">懷孕中<span class="option-sub">Pregnant / Buntis</span></span></label>
+                    <label><input type="radio" name="q25" value="哺乳中"><span class="option-label">哺乳中<span class="option-sub">Breastfeeding / Nagpapasuso</span></span></label>
                 </div>
             </div>
 
             <div class="question">
-                <div class="question-title">10. 補充事項 (選填)<span class="question-en">Additional notes (Optional)</span></div>
-                <textarea name="q28" placeholder="請在此輸入... / Enter here..."></textarea>
+                <div class="question-title">10. 補充事項 (選填)<span class="question-sub">Additional notes / Karagdagang impormasyon</span></div>
+                <textarea name="q28" placeholder="請在此輸入 / Enter here / Ilagay dito..."></textarea>
             </div>
 
             <div class="footer-buttons">
-                <button type="button" class="btn-submit" onclick="generateSummary()">📄 確認並產生總結 / Review & Submit</button>
+                <button type="button" class="btn-submit" onclick="generateSummary()">📄 產生總結 / Review / Suriin</button>
             </div>
         </form>
     </div>
 
     <div id="summaryScreen" class="container" style="display:none;">
-        <h2 style="color: var(--primary); text-align: center;">📄 資料確認 / Summary</h2>
-        <p style="text-align: center; color: #666;">請確認以下資料，完成安全驗證後點擊送出。<br><small>Please review your answers, complete security check, and submit.</small></p>
+        <h2 style="color: var(--primary); text-align: center;">📄 資料確認 / Summary / Buod</h2>
+        <p style="text-align: center; color: #666; font-size: 14px;">請確認以下資料，完成驗證後點擊送出。<br>Please review, verify, and submit.<br>Suriin, i-verify, at ipadala.</p>
         
         <div class="summary-box" id="summaryContent"></div>
 
@@ -243,25 +243,26 @@
         </div>
 
         <div class="footer-buttons">
-            <button class="btn-prev" onclick="backToForm()">⬅ 返回修改 / Edit</button>
-            <button class="btn-submit" onclick="finalSubmit()">✅ 驗證並送出 / Submit</button>
+            <button class="btn-prev" onclick="backToForm()">⬅ 返回修改 / Edit / I-edit</button>
+            <button class="btn-submit" onclick="finalSubmit()">✅ 驗證並送出 / Submit / Ipadala</button>
         </div>
     </div>
 
     <div id="successScreen" style="display:none; text-align: center; margin-top: 50px; background: white; padding: 40px; border-radius: 12px; max-width: 600px; margin: 40px auto; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
         <h1 style="color: #107c10; font-size: 60px; margin-bottom: 10px;">✅</h1>
-        <h2>問卷已成功送出！<br>Successfully Submitted!</h2>
-        <p style="color: #666; font-size: 16px;">資料已傳送至診間，請安心等待叫號。<br>Your data is sent to the doctor. Please wait.</p>
-        <button onclick="location.reload()" style="background: var(--primary); color: white; padding: 12px 24px; font-size: 16px; border:none; border-radius: 8px; margin-top: 20px; font-weight: bold; cursor: pointer;">返回首頁 / Return</button>
+        <h2>成功送出！<br>Submitted! / Naipadala na!</h2>
+        <p style="color: #666; font-size: 15px;">資料已傳送至診間，請安心等待。<br>Data sent. Please wait for your turn.<br>Naipadala na. Mangyaring maghintay.</p>
+        <button onclick="location.reload()" style="background: var(--primary); color: white; padding: 12px 24px; font-size: 16px; border:none; border-radius: 8px; margin-top: 20px; font-weight: bold; cursor: pointer;">返回首頁 / Return / Bumalik</button>
     </div>
 
     <script>
+        // 陣列格式：[中文 value, English, Tagalog]
         const hospitalDepartments = {
-            "內科 / Internal Med": ["一般內科 / Gen. Med", "感染科 / Infect.", "心臟科 / Cardio", "腸胃科 / Gastro"],
-            "外科 / Surgery": ["一般外科 / Gen. Surg", "骨科 / Orthopedics"],
-            "婦幼 / OBS&Peds": ["小兒科 / Pediatrics", "婦產科 / OBS&GYN"],
-            "牙科 / Dentistry": ["一般牙科 / Gen. Dentistry"],
-            "其他 / Others": ["家醫科 / Family Med", "眼科 / Ophthalmology", "皮膚科 / Dermatology"]
+            "內科 / Internal Med / Medisina": ["一般內科 / Gen. Med / Pangkalahatan", "感染科 / Infection / Impeksyon", "心臟科 / Cardio / Puso", "腸胃科 / Gastro / Tiyan"],
+            "外科 / Surgery / Siruhiya": ["一般外科 / Gen. Surg / Pangkalahatan", "骨科 / Orthopedics / Buto"],
+            "婦幼 / OBS&Peds / OB at Pedia": ["小兒科 / Pediatrics / Pambata", "婦產科 / OBS&GYN / Para sa babae"],
+            "牙科 / Dentistry / Dentista": ["一般牙科 / Gen. Dent / Pangkalahatan"],
+            "其他 / Others / Iba pa": ["家醫科 / Family Med / Pamilya", "眼科 / Eyes / Mata", "皮膚科 / Dermatology / Balat"]
         };
 
         function initDepartments() {
@@ -269,7 +270,8 @@
             for (const category in hospitalDepartments) {
                 const label = document.createElement('label');
                 const parts = category.split(' / ');
-                label.innerHTML = `<input type="radio" name="mainDept" value="${parts[0]}"><span class="option-label">${parts[0]}<span class="option-en">${parts[1]||''}</span></span>`;
+                // value 鎖定為中文 (parts[0])，傳給後端
+                label.innerHTML = `<input type="radio" name="mainDept" value="${parts[0]}"><span class="option-label">${parts[0]}<span class="option-sub">${parts[1]}<br>${parts[2]}</span></span>`;
                 label.querySelector('input').addEventListener('change', function() {
                     showSubDepartments(category);
                 });
@@ -283,8 +285,9 @@
             subGroup.innerHTML = '';
             hospitalDepartments[category].forEach(sub => {
                 const parts = sub.split(' / ');
-                const label = document.createElement('label');
-                label.innerHTML = `<input type="radio" name="subDept" value="${parts[0]}"><span class="option-label">${parts[0]}<span class="option-en">${parts[1]||''}</span></span>`;
+                // value 鎖定為中文
+                label = document.createElement('label');
+                label.innerHTML = `<input type="radio" name="subDept" value="${parts[0]}"><span class="option-label">${parts[0]}<span class="option-sub">${parts[1]}<br>${parts[2]}</span></span>`;
                 subGroup.appendChild(label);
             });
             subContainer.style.display = 'block';
@@ -312,10 +315,10 @@
         const painDisplay = document.getElementById('painValueDisplay');
         painSlider.addEventListener('input', function() {
             let desc = " / Score";
-            if(this.value == 0) desc = " / Score (無痛/No pain)";
-            else if(this.value <= 3) desc = " / Score (輕微/Mild)";
-            else if(this.value <= 6) desc = " / Score (中度/Moderate)";
-            else desc = " / Score (劇痛/Severe)";
+            if(this.value == 0) desc = " / Score (無痛 / Walang sakit)";
+            else if(this.value <= 3) desc = " / Score (輕微 / Medyo masakit)";
+            else if(this.value <= 6) desc = " / Score (中度 / Katamtaman)";
+            else desc = " / Score (劇痛 / Sobrang sakit)";
             painDisplay.innerText = this.value + desc;
         });
 
@@ -329,11 +332,11 @@
             const q1 = document.querySelector('input[name="q1"]:checked');
             
             if(!room || !num || !name || !gender || !mainDept || !subDept) {
-                alert("請完整填寫診間、號碼、姓名、性別與看診科別！\nPlease fill in Room No, Patient No, Name, Gender, and Department!");
+                alert("請完整填寫診間、號碼、姓名、性別與科別！\nFill in Room, No, Name, Gender, Dept!\nPunan ang lahat ng pangunahing impormasyon!");
                 return false;
             }
             if(!q1) {
-                alert("請選擇「1. 看診主要原因」！\nPlease select the main reason for today's visit!");
+                alert("請選擇「主要原因」！\nSelect main reason!\nPiliin ang pangunahing dahilan!");
                 return false;
             }
             return true;
@@ -364,8 +367,8 @@
             const subDept = getAns('subDept');
             
             html += `<div class="summary-item"><div class="summary-q">【基本資料 / Basic Info】</div>
-                     <div class="summary-a">診間：<b>${room}</b> | 看診號：<b>${num}號</b><br>
-                     姓名：${document.getElementById('pName').value} | 性別：${gender}</div></div>`;
+                     <div class="summary-a">Room：<b>${room}</b> | No：<b>${num}</b><br>
+                     Name：${document.getElementById('pName').value} | Gender：${gender}</div></div>`;
             
             html += `<div class="summary-item"><div class="summary-q">【科別 / Dept.】</div>
                      <div class="summary-a" style="color: #d13438; font-weight: bold;">${mainDept} ➔ ${subDept}</div></div>`;
@@ -384,14 +387,14 @@
             
             let allergy = getAns('q15');
             if(allergy === '有') allergy += ` (${getAns('q15_detail', 'text')})`;
-            html += `<div class="summary-item"><div class="summary-q">7. 藥物過敏 / Allergies</div><div class="summary-a">${allergy}</div></div>`;
+            html += `<div class="summary-item"><div class="summary-q">7. 過敏 / Allergies</div><div class="summary-a">${allergy}</div></div>`;
 
             let surgery = getAns('q17');
             if(surgery === '有') surgery += ` (${getAns('q17_detail', 'text')})`;
-            html += `<div class="summary-item"><div class="summary-q">8. 開刀住院 / Surgeries</div><div class="summary-a">${surgery}</div></div>`;
+            html += `<div class="summary-item"><div class="summary-q">8. 開刀 / Surgeries</div><div class="summary-a">${surgery}</div></div>`;
             
             if(gender === '女') {
-                html += `<div class="summary-item"><div class="summary-q">9. 懷孕哺乳 / Pregnant</div><div class="summary-a">${getAns('q25')}</div></div>`;
+                html += `<div class="summary-item"><div class="summary-q">9. 懷孕 / Pregnant</div><div class="summary-a">${getAns('q25')}</div></div>`;
             }
             html += `<div class="summary-item"><div class="summary-q">10. 補充 / Notes</div><div class="summary-a">${getAns('q28', 'text')}</div></div>`;
 
@@ -410,7 +413,7 @@
         async function finalSubmit() {
             const turnstileResponse = document.querySelector('[name="cf-turnstile-response"]')?.value;
             if (!turnstileResponse) {
-                alert("⚠️ 請完成安全驗證 / Please complete security check.");
+                alert("⚠️ 請完成安全驗證 / Verify security / Paki-verify");
                 return;
             }
 
@@ -427,14 +430,10 @@
                 room: room,
                 num: num,
                 name: document.getElementById('pName').value.trim(),
-                
-                // 🌟 後端驗證用的假資料
-                id_number: "A123456789", 
-                
+                id_number: "A123456789", // 🌟 假身分證直接騙過後端
                 gender: getAns('gender'),
                 mainDept: getAns('mainDept'),
                 subDept: getAns('subDept'),
-                
                 q1: getAns('q1'),
                 q2: getAns('q2'),
                 q5: getAns('q5', 'checkbox'),
