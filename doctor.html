@@ -3,16 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>👨‍⚕️ 門診 AI 診前資料調閱系統</title>
+    <title>👨‍⚕️ 門診資料調閱 / Clinic Data Retrieval</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; color: #333; }
         .container { max-width: 700px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
         h2 { color: #005a9e; border-bottom: 2px solid #cce3f5; padding-bottom: 10px; margin-top: 0; text-align: center; }
-        .search-box { display: flex; gap: 10px; margin-bottom: 20px; background: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #e1dfdd; }
-        .input-group { flex: 1; }
+        h2 span { display: block; font-size: 16px; color: #666; font-weight: normal; margin-top: 5px; }
+        .search-box { display: flex; gap: 10px; margin-bottom: 20px; background: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #e1dfdd; flex-wrap: wrap; }
+        .input-group { flex: 1; min-width: 150px; }
         label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px; }
+        label span { font-weight: normal; color: #666; font-size: 12px; margin-left: 4px; }
         input[type="text"], input[type="number"] { width: 100%; padding: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
-        button { padding: 10px 20px; font-size: 16px; font-weight: bold; border-radius: 6px; border: none; cursor: pointer; transition: 0.2s; }
+        button { padding: 10px 20px; font-size: 16px; font-weight: bold; border-radius: 6px; border: none; cursor: pointer; transition: 0.2s; white-space: nowrap; }
         .btn-fetch { background: #0078d4; color: white; margin-top: 24px; height: 42px; }
         .btn-fetch:hover { background: #005a9e; }
         .btn-copy { background: #107c10; color: white; width: 100%; margin-top: 15px; padding: 12px; display: none; }
@@ -26,42 +28,35 @@
 <body>
 
     <div class="container">
-        <h2>👨‍⚕️ 門診 AI 診前資料調閱系統</h2>
+        <h2>👨‍⚕️ 診前資料調閱系統 <span>Pre-Clinic Data Retrieval System</span></h2>
         
         <div class="search-box">
             <div class="input-group">
-                <label>📍 診間房號</label>
-                <input type="text" id="roomInput" placeholder="例: 101">
+                <label>📍 診間房號 <span>/ Room No.</span></label>
+                <input type="text" id="roomInput" placeholder="Ex: 101">
             </div>
             <div class="input-group">
-                <label>🎟️ 看診號碼</label>
-                <input type="number" id="numInput" placeholder="例: 15">
+                <label>🎟️ 看診號碼 <span>/ Patient No.</span></label>
+                <input type="number" id="numInput" placeholder="Ex: 15">
             </div>
-            <button class="btn-fetch" onclick="fetchPatientData()">🔍 調閱資料</button>
+            <button class="btn-fetch" onclick="fetchPatientData()">🔍 調閱 / Retrieve</button>
         </div>
 
         <div id="statusMessage" class="status-msg"></div>
 
         <div id="resultArea">
-            <h3 style="margin-top: 0; color: #333;">📋 診前問卷彙總 <span class="masked-badge">🔒 個資已去識別化</span></h3>
+            <h3 style="margin-top: 0; color: #333;">📋 問卷彙總 / Summary <span class="masked-badge">🔒 隱私保護 / Privacy Protected</span></h3>
             <div id="textContent" style="white-space: pre-wrap; font-size: 15px; color: #444; background: #faf9f8; padding: 15px; border-radius: 6px; border: 1px dashed #ccc;"></div>
-            <button id="copyBtn" class="btn-copy" onclick="copyData()">📋 一鍵複製至 HIS 或 AI 系統</button>
+            <button id="copyBtn" class="btn-copy" onclick="copyData()">📋 一鍵複製 / Copy Data</button>
         </div>
     </div>
 
     <script>
-        // 去識別化邏輯：保留首字，其餘變 O
         function maskName(name) {
-            if (!name) return "無";
+            if (!name) return "無 / N/A";
             if (name.length <= 1) return name;
             if (name.length === 2) return name.charAt(0) + 'O';
             return name.charAt(0) + 'O' + name.substring(2); 
-        }
-
-        // 去識別化邏輯：保留前4碼與後3碼
-        function maskID(id) {
-            if (!id || id.length !== 10) return id;
-            return id.substring(0, 4) + 'OOO' + id.substring(7);
         }
 
         async function fetchPatientData() {
@@ -73,12 +68,12 @@
             const copyBtn = document.getElementById('copyBtn');
 
             if (!room || !num) {
-                statusMsg.innerText = "⚠️ 請輸入診間房號與看診號碼";
+                statusMsg.innerText = "⚠️ 請輸入診間房號與看診號碼 / Please enter Room No. and Patient No.";
                 return;
             }
 
             statusMsg.style.color = "#0078d4";
-            statusMsg.innerText = "⏳ 正在從雲端安全通道調閱資料...";
+            statusMsg.innerText = "⏳ 正在調閱資料 / Retrieving data...";
             resultArea.style.display = "none";
             copyBtn.style.display = "none";
 
@@ -88,47 +83,44 @@
             try {
                 const response = await fetch(WORKER_URL);
                 if (response.status === 404) {
-                    throw new Error("找不到資料。病患可能尚未填寫，或資料已超過 8 小時自動銷毀。");
+                    throw new Error("找不到資料 (可能尚未填寫或已過期刪除) / Data not found or expired.");
                 }
-                if (!response.ok) throw new Error("伺服器連線異常");
+                if (!response.ok) throw new Error("伺服器連線異常 / Server connection error.");
 
                 const rawData = await response.json();
 
-                // 🌟 去識別化處理
+                // 🌟 姓名去識別化處理
                 const safeName = maskName(rawData.name);
-                const safeID = maskID(rawData.id_number);
 
                 // ==========================================
-                // 🚀 完整組裝所有欄位 (包含新版的雙語未填寫預設值)
+                // 🚀 雙語版文字組裝 (已移除身分證)
                 // ==========================================
-                let formattedText = `【病患基本資料】\n`;
-                formattedText += `姓名：${safeName} | 身分證：${safeID} | 性別：${rawData.gender || '無'}\n`;
-                formattedText += `欲看診科別：${rawData.mainDept || ''} ${rawData.subDept || ''}\n`;
-                formattedText += `填寫時間：${rawData.timestamp || '無紀錄'}\n\n`;
+                let formattedText = `【基本資料 / Basic Info】\n`;
+                formattedText += `姓名 / Name：${safeName} | 性別 / Gender：${rawData.gender || '無 / N/A'}\n`;
+                formattedText += `科別 / Dept.：${rawData.mainDept || ''} ${rawData.subDept || ''}\n`;
+                formattedText += `時間 / Time：${rawData.timestamp || '無紀錄 / No Record'}\n\n`;
                 
-                formattedText += `【看診主訴與症狀】\n`;
-                formattedText += `1. 主要原因：${rawData.q1 || '未填寫'}\n`;
+                formattedText += `【主訴與症狀 / Chief Complaint & Symptoms】\n`;
+                formattedText += `1. 原因 / Reason：${rawData.q1 || '未填寫 / N/A'}\n`;
                 
-                // 只有選擇身體不舒服，才會有 2, 3, 4, 5 題
-                if(rawData.q1 === '身體不舒服' || rawData.q1 === '🤒 身體不舒服') {
-                    formattedText += `2. 發生多久：${rawData.q2 || '未填寫'}\n`;
-                    formattedText += `3. 不舒服位置：${rawData.q5 || '未填寫'}\n`;
-                    formattedText += `4. 痛苦程度：${rawData.q7 !== undefined ? rawData.q7 + ' 分' : '未填寫'}\n`;
-                    formattedText += `5. 伴隨狀況：${rawData.q10 || '未填寫'}\n`;
+                if(rawData.q1 && rawData.q1.includes('身體不舒服')) {
+                    formattedText += `2. 多久 / Duration：${rawData.q2 || '未填寫 / N/A'}\n`;
+                    formattedText += `3. 位置 / Location：${rawData.q5 || '未填寫 / N/A'}\n`;
+                    formattedText += `4. 痛感 / Pain Level：${rawData.q7 !== undefined ? rawData.q7 + ' 分/Score' : '未填寫 / N/A'}\n`;
+                    formattedText += `5. 伴隨 / Accompanying：${rawData.q10 || '未填寫 / N/A'}\n`;
                 }
 
-                formattedText += `\n【過去病史與其他】\n`;
-                formattedText += `6. 慢性疾病史：${rawData.q13 || '未填寫'}\n`;
-                formattedText += `7. 藥物過敏：${rawData.q15 || '未填寫'}\n`;
-                formattedText += `8. 開刀住院史：${rawData.q17 || '未填寫'}\n`;
+                formattedText += `\n【過去病史與其他 / Past History & Others】\n`;
+                formattedText += `6. 慢性病 / Chronic：${rawData.q13 || '未填寫 / N/A'}\n`;
+                formattedText += `7. 藥物過敏 / Allergies：${rawData.q15 || '未填寫 / N/A'}\n`;
+                formattedText += `8. 開刀住院 / Surgeries：${rawData.q17 || '未填寫 / N/A'}\n`;
                 
-                if (rawData.gender === '女') {
-                    formattedText += `9. 懷孕/哺乳：${rawData.q25 || '未填寫'}\n`;
+                if (rawData.gender && rawData.gender.includes('女')) {
+                    formattedText += `9. 懷孕哺乳 / Pregnant：${rawData.q25 || '未填寫 / N/A'}\n`;
                 }
 
-                // 若有補充事項且不是預設的「無」，則顯示
                 if (rawData.q28 && !rawData.q28.includes('無 / None') && rawData.q28.trim() !== '') {
-                    formattedText += `10. 補充事項：${rawData.q28}\n`;
+                    formattedText += `10. 補充 / Notes：${rawData.q28}\n`;
                 }
 
                 textContent.innerText = formattedText;
@@ -146,9 +138,9 @@
         function copyData() {
             const text = document.getElementById('textContent').innerText;
             navigator.clipboard.writeText(text).then(() => {
-                alert("✅ 安全資料已成功複製！\n您可以直接貼上至 HIS 系統。");
+                alert("✅ 資料已複製！ / Data copied successfully!");
             }).catch(() => {
-                alert("複製失敗，請手動圈選複製。");
+                alert("複製失敗，請手動圈選複製。 / Copy failed, please select manually.");
             });
         }
     </script>

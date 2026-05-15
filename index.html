@@ -171,6 +171,7 @@
                     </div>
                 </div>
             </div>
+
             <div class="section-title">
                 過去病史
                 <span class="section-title-en">Past Medical History</span>
@@ -255,7 +256,6 @@
     </div>
 
     <script>
-        // 科系資料庫 (簡化版支援宣教使用)
         const hospitalDepartments = {
             "內科 / Internal Med": ["一般內科 / Gen. Med", "感染科 / Infect.", "心臟科 / Cardio", "腸胃科 / Gastro"],
             "外科 / Surgery": ["一般外科 / Gen. Surg", "骨科 / Orthopedics"],
@@ -302,7 +302,6 @@
             });
         });
 
-        // 監聽性別以顯示女性專屬問題
         document.querySelectorAll('input[name="gender"]').forEach(radio => {
             radio.addEventListener('change', (e) => {
                 toggleSub('femaleOnlyQuestion', e.target.value === '女');
@@ -408,9 +407,6 @@
             window.scrollTo(0,0);
         }
 
-        // ==========================================
-        // 🚀 送出邏輯：維持後端不變的密技
-        // ==========================================
         async function finalSubmit() {
             const turnstileResponse = document.querySelector('[name="cf-turnstile-response"]')?.value;
             if (!turnstileResponse) {
@@ -432,7 +428,7 @@
                 num: num,
                 name: document.getElementById('pName').value.trim(),
                 
-                // 🌟 關鍵機制：自動塞入一組符合台灣身分證邏輯的假資料，讓 Cloudflare Worker 驗證過關
+                // 🌟 後端驗證用的假資料
                 id_number: "A123456789", 
                 
                 gender: getAns('gender'),
