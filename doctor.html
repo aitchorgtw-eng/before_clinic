@@ -31,7 +31,7 @@
         <div class="search-box">
             <div class="input-group">
                 <label>📍 診間房號</label>
-                <input type="text" id="roomInput" placeholder="例: 201">
+                <input type="text" id="roomInput" placeholder="例: 101">
             </div>
             <div class="input-group">
                 <label>🎟️ 看診號碼</label>
@@ -55,7 +55,7 @@
             if (!name) return "無";
             if (name.length <= 1) return name;
             if (name.length === 2) return name.charAt(0) + 'O';
-            return name.charAt(0) + 'O' + name.substring(2); // 雖然這裡可以只遮中間，但依照您的需求可以全遮或遮中間
+            return name.charAt(0) + 'O' + name.substring(2); 
         }
 
         // 去識別化邏輯：保留前4碼與後3碼
@@ -88,28 +88,48 @@
             try {
                 const response = await fetch(WORKER_URL);
                 if (response.status === 404) {
-                    throw new Error("找不到資料。病患可能尚未填寫，或資料已超過 2 小時自動銷毀。");
+                    throw new Error("找不到資料。病患可能尚未填寫，或資料已超過 8 小時自動銷毀。");
                 }
                 if (!response.ok) throw new Error("伺服器連線異常");
 
                 const rawData = await response.json();
 
-                // 🌟 在這裡進行去識別化 (資料到達醫師瀏覽器後瞬間處理)
+                // 🌟 去識別化處理
                 const safeName = maskName(rawData.name);
                 const safeID = maskID(rawData.id_number);
 
-                // 組裝成漂亮的文字格式
+                // ==========================================
+                // 🚀 完整組裝所有欄位 (包含新版的雙語未填寫預設值)
+                // ==========================================
                 let formattedText = `【病患基本資料】\n`;
                 formattedText += `姓名：${safeName} | 身分證：${safeID} | 性別：${rawData.gender || '無'}\n`;
                 formattedText += `欲看診科別：${rawData.mainDept || ''} ${rawData.subDept || ''}\n`;
                 formattedText += `填寫時間：${rawData.timestamp || '無紀錄'}\n\n`;
                 
-                formattedText += `【看診問卷內容】\n`;
+                formattedText += `【看診主訴與症狀】\n`;
                 formattedText += `1. 主要原因：${rawData.q1 || '未填寫'}\n`;
-                if(rawData.q1 === '身體不舒服') {
+                
+                // 只有選擇身體不舒服，才會有 2, 3, 4, 5 題
+                if(rawData.q1 === '身體不舒服' || rawData.q1 === '🤒 身體不舒服') {
                     formattedText += `2. 發生多久：${rawData.q2 || '未填寫'}\n`;
+                    formattedText += `3. 不舒服位置：${rawData.q5 || '未填寫'}\n`;
+                    formattedText += `4. 痛苦程度：${rawData.q7 !== undefined ? rawData.q7 + ' 分' : '未填寫'}\n`;
+                    formattedText += `5. 伴隨狀況：${rawData.q10 || '未填寫'}\n`;
                 }
-                // (如果有 q5, q6 等等，也可以在這裡繼續組裝)
+
+                formattedText += `\n【過去病史與其他】\n`;
+                formattedText += `6. 慢性疾病史：${rawData.q13 || '未填寫'}\n`;
+                formattedText += `7. 藥物過敏：${rawData.q15 || '未填寫'}\n`;
+                formattedText += `8. 開刀住院史：${rawData.q17 || '未填寫'}\n`;
+                
+                if (rawData.gender === '女') {
+                    formattedText += `9. 懷孕/哺乳：${rawData.q25 || '未填寫'}\n`;
+                }
+
+                // 若有補充事項且不是預設的「無」，則顯示
+                if (rawData.q28 && !rawData.q28.includes('無 / None') && rawData.q28.trim() !== '') {
+                    formattedText += `10. 補充事項：${rawData.q28}\n`;
+                }
 
                 textContent.innerText = formattedText;
                 
@@ -126,7 +146,7 @@
         function copyData() {
             const text = document.getElementById('textContent').innerText;
             navigator.clipboard.writeText(text).then(() => {
-                alert("✅ 安全資料已成功複製！\n您可以直接貼上至 HIS 系統或我們之前做的醫師 AI 畫面中。");
+                alert("✅ 安全資料已成功複製！\n您可以直接貼上至 HIS 系統。");
             }).catch(() => {
                 alert("複製失敗，請手動圈選複製。");
             });
